@@ -1,17 +1,14 @@
-// URL for Earthquake GeoJson data
+
 var earthquakeURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
 
-// URL for Tectonic_Plates GeoJson data
+
 var TectonicPlatesURL = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"
 
-// Perform a GET request to the Earthquake query URL. 
-// Once response is received, forward the data.features object to the createFeatures function
 d3.json(earthquakeURL, function(data) {
     createFeatures(data.features); 
 });
 
-// Create GeoJSON layer containing the features array on the earthquakeData object
-// Run the onEachFeature function once for each record
+
 function createFeatures(earthquakeData) {
   var earthquakes = L.geoJson(earthquakeData, {
     onEachFeature: function (feature, layer){
@@ -29,12 +26,12 @@ function createFeatures(earthquakeData) {
       })
     }
   });
-  createMap(earthquakes) // Send earthquakes layer to the createMap function
+  createMap(earthquakes) 
 }
 
 
 function createMap(earthquakes) {
-  // Various Map Layers (Mapbox API) for user selection
+ 
   var satelliteMap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?" +
     "access_token=pk.eyJ1IjoiY2ZlcnJhcmVuIiwiYSI6ImNqaHhvcW9sNjBlMmwzcHBkYzk0YXRsZ2cifQ.lzNNrQqp-E85khEiWhgq4Q");
   var outdoorMap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?" +
@@ -43,33 +40,32 @@ function createMap(earthquakes) {
     "access_token=pk.eyJ1IjoiY2ZlcnJhcmVuIiwiYSI6ImNqaHhvcW9sNjBlMmwzcHBkYzk0YXRsZ2cifQ.lzNNrQqp-E85khEiWhgq4Q");
 
 
-  // BaseMaps that users can select
+ 
   var baseMaps = {
     "Satellite Map": satelliteMap,
     "Outdoor Map": outdoorMap,
     "Light Map": lightMap
   };
 
-  // Add a tectonic plate layer
+  
   var tectonicPlates = new L.LayerGroup();
 
-  // Create overlay object to hold our overlay layer
+ 
   var overlayMaps = {
     Earthquakes: earthquakes,
     "Tectonic Plates": tectonicPlates
   };
 
-  // Create our map, giving it the streetmap and earthquakes layers to display on load
+  
   var myMap = L.map("map", {
     center: [41.881832, -87.62317],
     zoom: 2.5,
     layers: [lightMap, earthquakes, tectonicPlates]
   });
 
-   // Add Fault lines data
+  
    d3.json(TectonicPlatesURL, function(plateData) {
-     // Adding our geoJSON data, along with style information, to the tectonicplates
-     // layer.
+     
      L.geoJson(plateData, {
        color: "blue",
        weight: 2
@@ -77,14 +73,12 @@ function createMap(earthquakes) {
      .addTo(tectonicPlates);
    });
 
-  // Create a layer control
-  // Pass in our baseMaps and overlayMaps
-  // Add the layer control to the map
+  
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
 
-  // Create legend
+ 
   var legend = L.control({position: 'topright'});
 
   legend.onAdd = function (myMap) {
@@ -93,7 +87,7 @@ function createMap(earthquakes) {
               grades = [0, 1, 2, 3, 4, 5],
               labels = [];
 
-  // loop through our density intervals and generate a label with a colored square for each interval
+  
     for (var i = 0; i < grades.length; i++) {
         div.innerHTML +=
             '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
